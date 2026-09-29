@@ -447,16 +447,13 @@
    Stock counts and invoice numbers are updated through Firestore transactions
    so concurrent sales on different devices can't oversell stock or collide
    on an invoice number. */
-// TODO: replace with Al Hor's own Firebase project config (create a new
-// Firebase project — do NOT reuse Khoory Traders' project, or this store's
-// data will read/write the same database as theirs).
 const firebaseConfig = {
-  apiKey: "REPLACE_WITH_AL_HOR_API_KEY",
-  authDomain: "REPLACE_WITH_AL_HOR_PROJECT.firebaseapp.com",
-  projectId: "REPLACE_WITH_AL_HOR_PROJECT",
-  storageBucket: "REPLACE_WITH_AL_HOR_PROJECT.firebasestorage.app",
-  messagingSenderId: "REPLACE_WITH_AL_HOR_SENDER_ID",
-  appId: "REPLACE_WITH_AL_HOR_APP_ID"
+  apiKey: "AIzaSyCKgKzK4i2Ij3eRMWUaICJMPXgxGi4b3nE",
+  authDomain: "alhor-e56d3.firebaseapp.com",
+  projectId: "alhor-e56d3",
+  storageBucket: "alhor-e56d3.firebasestorage.app",
+  messagingSenderId: "447457918682",
+  appId: "1:447457918682:web:80c9a2a5f87548ea216fe3"
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
