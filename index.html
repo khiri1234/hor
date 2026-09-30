@@ -631,8 +631,45 @@ async function init(){
   setVatDefaultRange();
   setInterval(()=>{ document.getElementById('clock').textContent = new Date().toLocaleString(); },1000);
 }
+const SEED_CATALOG = [
+  // Vapes
+  {name:'Disposable Vape 5000 Puffs', category:'Vapes', price:45, cost:28, stock:60},
+  {name:'Vape Pod Kit', category:'Vapes', price:120, cost:75, stock:25},
+  {name:'Vape Replacement Coils (Pack of 5)', category:'Vapes', price:30, cost:15, stock:50},
+  {name:'E-Liquid 30ml Mint', category:'Vapes', price:25, cost:12, stock:40},
+  {name:'Vape USB Charger Cable', category:'Vapes', price:15, cost:6, stock:70},
+  // Cigars
+  {name:'Cuban-Style Cigar (Single)', category:'Cigars', price:60, cost:35, stock:30},
+  {name:'Cigar Pack of 5', category:'Cigars', price:250, cost:160, stock:15},
+  {name:'Cigar Cutter', category:'Cigars', price:40, cost:18, stock:20},
+  {name:'Cigar Humidor Box', category:'Cigars', price:180, cost:100, stock:8},
+  // Shisha & Tobacco
+  {name:'Shisha Molasses 250g (Double Apple)', category:'Shisha & Tobacco', price:35, cost:20, stock:45},
+  {name:'Shisha Quick-Light Charcoal Box', category:'Shisha & Tobacco', price:20, cost:10, stock:60},
+  {name:'Shisha Pipe Complete Set', category:'Shisha & Tobacco', price:220, cost:140, stock:10},
+  {name:'Shisha Silicone Hose', category:'Shisha & Tobacco', price:45, cost:22, stock:25},
+  // Rolling Papers & Filters
+  {name:'Rolling Papers King Size (Pack)', category:'Rolling Papers & Filters', price:8, cost:3, stock:100},
+  {name:'Rolling Filter Tips (Pack)', category:'Rolling Papers & Filters', price:6, cost:2, stock:100},
+  {name:'Rolling Tray', category:'Rolling Papers & Filters', price:25, cost:12, stock:30},
+  {name:'4-Piece Herb Grinder', category:'Rolling Papers & Filters', price:55, cost:28, stock:25},
+  // Lighters & Torches
+  {name:'Jet Torch Lighter', category:'Lighters & Torches', price:30, cost:14, stock:40},
+  {name:'Classic Flip Lighter', category:'Lighters & Torches', price:12, cost:5, stock:80},
+  {name:'Refillable Butane Gas Can', category:'Lighters & Torches', price:18, cost:8, stock:50},
+  // Accessories
+  {name:'Ceramic Ashtray', category:'Accessories', price:25, cost:12, stock:30},
+  {name:'Metal Cigarette Case', category:'Accessories', price:35, cost:16, stock:25},
+  {name:'Smoking Storage Pouch', category:'Accessories', price:45, cost:22, stock:20},
+  {name:'Pipe & Shisha Cleaning Kit', category:'Accessories', price:40, cost:20, stock:15},
+];
 async function seedInventoryIfNeeded(){
-  // No demo catalog for this store — starts blank, add real products via Inventory.
+  await mutateInventory(inv=>{
+    if(inv.length>0) return; // real data already present — never overwrite it
+    SEED_CATALOG.forEach(item=>{
+      inv.push({id:cid(), name:item.name, barcode:genBarcode(), price:item.price, cost:item.cost, stock:item.stock, category:item.category});
+    });
+  });
 }
 function cid(){ return 'p_' + Math.random().toString(36).slice(2,9); }
 function genBarcode(){
