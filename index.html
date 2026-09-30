@@ -621,7 +621,8 @@ const money = n => 'AED ' + (Math.round(n*100)/100).toFixed(2);
 
 /* ---------- Init / seed ---------- */
 async function init(){
-  await seedInventoryIfNeeded();
+  try{ await seedInventoryIfNeeded(); }
+  catch(e){ console.error('Inventory seeding skipped (Firestore not reachable/permitted):', e); }
   subscribeMeta();
   subscribeSales();
   subscribeReturns();
