@@ -665,10 +665,14 @@ const SEED_CATALOG = [
   {name:'Pipe & Shisha Cleaning Kit', category:'Accessories', price:40, cost:20, stock:15},
 ];
 async function seedInventoryIfNeeded(){
+  // Adds any catalog item whose name isn't already in inventory — never
+  // touches or duplicates existing items (e.g. real products already sold).
   await mutateInventory(inv=>{
-    if(inv.length>0) return; // real data already present — never overwrite it
     SEED_CATALOG.forEach(item=>{
-      inv.push({id:cid(), name:item.name, barcode:genBarcode(), price:item.price, cost:item.cost, stock:item.stock, category:item.category});
+      const exists = inv.some(p=>p.name.toLowerCase()===item.name.toLowerCase());
+      if(!exists){
+        inv.push({id:cid(), name:item.name, barcode:genBarcode(), price:item.price, cost:item.cost, stock:item.stock, category:item.category});
+      }
     });
   });
 }
