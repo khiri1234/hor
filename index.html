@@ -621,8 +621,8 @@ const money = n => 'AED ' + (Math.round(n*100)/100).toFixed(2);
 
 /* ---------- Init / seed ---------- */
 async function init(){
-  try{ await seedInventoryIfNeeded(); }
-  catch(e){ console.error('Inventory seeding skipped (Firestore not reachable/permitted):', e); }
+  try{ await syncSeedCatalog(); }
+  catch(e){ console.error('Seed-catalog cleanup skipped (Firestore not reachable/permitted):', e); }
   subscribeMeta();
   subscribeSales();
   subscribeReturns();
@@ -632,43 +632,63 @@ async function init(){
   setVatDefaultRange();
   setInterval(()=>{ document.getElementById('clock').textContent = new Date().toLocaleString(); },1000);
 }
-const SEED_CATALOG = [
-  // Vapes
-  {name:'Disposable Vape 5000 Puffs', category:'Vapes', price:45, cost:28, stock:60},
-  {name:'Vape Pod Kit', category:'Vapes', price:120, cost:75, stock:25},
-  {name:'Vape Replacement Coils (Pack of 5)', category:'Vapes', price:30, cost:15, stock:50},
-  {name:'E-Liquid 30ml Mint', category:'Vapes', price:25, cost:12, stock:40},
-  {name:'Vape USB Charger Cable', category:'Vapes', price:15, cost:6, stock:70},
-  // Cigars
-  {name:'Cuban-Style Cigar (Single)', category:'Cigars', price:60, cost:35, stock:30},
-  {name:'Cigar Pack of 5', category:'Cigars', price:250, cost:160, stock:15},
-  {name:'Cigar Cutter', category:'Cigars', price:40, cost:18, stock:20},
-  {name:'Cigar Humidor Box', category:'Cigars', price:180, cost:100, stock:8},
-  // Shisha & Tobacco
-  {name:'Shisha Molasses 250g (Double Apple)', category:'Shisha & Tobacco', price:35, cost:20, stock:45},
-  {name:'Shisha Quick-Light Charcoal Box', category:'Shisha & Tobacco', price:20, cost:10, stock:60},
-  {name:'Shisha Pipe Complete Set', category:'Shisha & Tobacco', price:220, cost:140, stock:10},
-  {name:'Shisha Silicone Hose', category:'Shisha & Tobacco', price:45, cost:22, stock:25},
-  // Rolling Papers & Filters
-  {name:'Rolling Papers King Size (Pack)', category:'Rolling Papers & Filters', price:8, cost:3, stock:100},
-  {name:'Rolling Filter Tips (Pack)', category:'Rolling Papers & Filters', price:6, cost:2, stock:100},
-  {name:'Rolling Tray', category:'Rolling Papers & Filters', price:25, cost:12, stock:30},
-  {name:'4-Piece Herb Grinder', category:'Rolling Papers & Filters', price:55, cost:28, stock:25},
-  // Lighters & Torches
-  {name:'Jet Torch Lighter', category:'Lighters & Torches', price:30, cost:14, stock:40},
-  {name:'Classic Flip Lighter', category:'Lighters & Torches', price:12, cost:5, stock:80},
-  {name:'Refillable Butane Gas Can', category:'Lighters & Torches', price:18, cost:8, stock:50},
+// Placeholder smoking-shop catalog names to remove — replaced by the real
+// Qasr Al Amalaki product catalog below. Matches by exact name only, so it
+// never touches real products even if this list stays in after cleanup.
+const REMOVE_SEED_NAMES = new Set([
+  'Disposable Vape 5000 Puffs','Vape Pod Kit','Vape Replacement Coils (Pack of 5)',
+  'E-Liquid 30ml Mint','Vape USB Charger Cable','Cuban-Style Cigar (Single)',
+  'Cigar Pack of 5','Cigar Cutter','Cigar Humidor Box',
+  'Shisha Molasses 250g (Double Apple)','Shisha Quick-Light Charcoal Box',
+  'Shisha Pipe Complete Set','Shisha Silicone Hose','Rolling Papers King Size (Pack)',
+  'Rolling Filter Tips (Pack)','Rolling Tray','4-Piece Herb Grinder',
+  'Jet Torch Lighter','Classic Flip Lighter','Refillable Butane Gas Can',
+  'Ceramic Ashtray','Metal Cigarette Case','Smoking Storage Pouch',
+  'Pipe & Shisha Cleaning Kit'
+].map(n=>n.toLowerCase()));
+
+// Product catalog carried over from the Qasr Al Amalaki storefront project
+// (khiri1234/qasr). Cost is estimated at ~60% of price and stock levels are
+// starting defaults — adjust both from the Inventory screen as needed.
+const QASR_CATALOG = [
+  // Disposables
+  {name:'Haze Bar — Blue Fog', category:'Disposables', price:45, cost:27, stock:40},
+  {name:'Haze Bar — Tropic Ash', category:'Disposables', price:48, cost:29, stock:40},
+  {name:'ELFBAR — Apple Ice', category:'Disposables', price:45, cost:27, stock:40},
+  {name:'ELFBAR BC5000 Ultra — Watermelon Ice', category:'Disposables', price:52, cost:31, stock:35},
+  {name:'ELFBAR BC10000 — Blue Razz Ice', category:'Disposables', price:68, cost:41, stock:30},
+  {name:'Crown Bar Al Fakher 60K E‑Hose X — Cool Mango', category:'Disposables', price:135, cost:81, stock:20},
+  {name:'ELFBAR Ice King — Double Mango', category:'Disposables', price:95, cost:57, stock:25},
+  {name:'Crown Bar Al Fakher 40K MegaMax — Two Apple', category:'Disposables', price:110, cost:66, stock:20},
+  {name:'Crown Bar Al Fakher 60K E‑Hose X — Mint', category:'Disposables', price:135, cost:81, stock:20},
+  // Pods
+  {name:'Drift Pod — Yuzu Frost', category:'Pods', price:85, cost:51, stock:25},
+  {name:'Drift Pod — Mint Static', category:'Pods', price:85, cost:51, stock:25},
+  {name:'Drift Pod — Cola Static', category:'Pods', price:85, cost:51, stock:25},
+  // E-Liquids
+  {name:'Orchard 60ml — Fuji Crush', category:'E-Liquids', price:65, cost:39, stock:30},
+  {name:'Orchard 60ml — Root & Cream', category:'E-Liquids', price:70, cost:42, stock:30},
+  {name:'Orchard 60ml — Falcon Grey', category:'E-Liquids', price:75, cost:45, stock:30},
+  // Devices
+  {name:'Halcyon Mod X2', category:'Devices', price:220, cost:132, stock:10},
+  {name:'Halcyon Mod Mini', category:'Devices', price:140, cost:84, stock:15},
   // Accessories
-  {name:'Ceramic Ashtray', category:'Accessories', price:25, cost:12, stock:30},
-  {name:'Metal Cigarette Case', category:'Accessories', price:35, cost:16, stock:25},
-  {name:'Smoking Storage Pouch', category:'Accessories', price:45, cost:22, stock:20},
-  {name:'Pipe & Shisha Cleaning Kit', category:'Accessories', price:40, cost:20, stock:15},
+  {name:'Coil Pack — Mesh 0.4Ω', category:'Accessories', price:35, cost:21, stock:40},
+  {name:'Glass Tank 25mm', category:'Accessories', price:30, cost:18, stock:30},
+  // Nicotine Pouches
+  {name:'VELO — Icy Cherry Nicotine Pouches', category:'Nicotine Pouches', price:28, cost:17, stock:40},
+  // Tobacco
+  {name:'Amber Leaf — Original Blend 50g', category:'Tobacco', price:38, cost:23, stock:25},
+  {name:'Cohiba — Pirámides Extra Tubos', category:'Tobacco', price:450, cost:280, stock:5},
 ];
-async function seedInventoryIfNeeded(){
-  // Adds any catalog item whose name isn't already in inventory — never
-  // touches or duplicates existing items (e.g. real products already sold).
+async function syncSeedCatalog(){
   await mutateInventory(inv=>{
-    SEED_CATALOG.forEach(item=>{
+    // drop the earlier placeholder catalog
+    for(let i=inv.length-1;i>=0;i--){
+      if(REMOVE_SEED_NAMES.has(inv[i].name.toLowerCase())) inv.splice(i,1);
+    }
+    // bring in the Qasr Al Amalaki catalog, skipping anything already present
+    QASR_CATALOG.forEach(item=>{
       const exists = inv.some(p=>p.name.toLowerCase()===item.name.toLowerCase());
       if(!exists){
         inv.push({id:cid(), name:item.name, barcode:genBarcode(), price:item.price, cost:item.cost, stock:item.stock, category:item.category});
