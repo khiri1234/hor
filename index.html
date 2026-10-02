@@ -22,8 +22,8 @@
     --panel-2:#2B352F;
     --bg:#EEF1EC;
     --card:#FFFFFF;
-    --till:#73812E;
-    --till-dark:#4C5420;
+    --till:#5FA000;
+    --till-dark:#385000;
     --amber:#E8A33D;
     --red:#C1432E;
     --line:#DADFD9;
@@ -42,7 +42,7 @@
   /* Sidebar */
   .sidebar{background:var(--panel);color:#EAF0EC;padding:22px 14px;display:flex;flex-direction:column;gap:4px;}
   .brand{display:flex;align-items:center;gap:10px;padding:0 8px 22px 8px;border-bottom:1px solid #38443C;margin-bottom:16px;}
-  .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--till);box-shadow:0 0 0 3px rgba(115,129,46,.25);}
+  .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--till);box-shadow:0 0 0 3px rgba(95,160,0,.25);}
   .brand span{font-weight:800;letter-spacing:.01em;font-size:15px;line-height:1.15;display:block;}
   .brand small{display:block;font-size:10px;color:#9FB0A6;letter-spacing:.14em;text-transform:uppercase;margin-top:1px;}
   .nav-btn{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:9px;border:none;background:transparent;color:#C9D4CD;text-align:left;font-size:14px;font-weight:600;}
@@ -69,7 +69,7 @@
   .sale-layout{display:grid;grid-template-columns:1fr 420px;gap:16px;align-items:start;}
   .scan-row{display:flex;gap:10px;margin-bottom:14px;}
   .scan-row input{flex:1;padding:13px 16px;border-radius:10px;border:2px solid var(--till);font-size:15px;font-family:var(--mono);background:#fff;outline:none;}
-  .scan-row input:focus{box-shadow:0 0 0 3px rgba(115,129,46,.2);}
+  .scan-row input:focus{box-shadow:0 0 0 3px rgba(95,160,0,.2);}
   .sort-row{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;}
   .sort-row>span{font-size:12px;font-weight:700;color:var(--text-dim);}
   .sort-chip{padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:12px;font-weight:600;color:var(--text-dim);}
@@ -198,7 +198,7 @@
   #authGate.fading{opacity:0;transform:scale(1.04);pointer-events:none;}
   @keyframes authIn{from{opacity:0;transform:translateY(14px) scale(.94);}to{opacity:1;transform:translateY(0) scale(1);}}
   @keyframes authShake{10%,90%{transform:translateX(-2px);}20%,80%{transform:translateX(5px);}30%,50%,70%{transform:translateX(-9px);}40%,60%{transform:translateX(9px);}}
-  @keyframes dotPulse{0%,100%{box-shadow:0 0 0 4px rgba(115,129,46,.2);}50%{box-shadow:0 0 0 8px rgba(115,129,46,.08);}}
+  @keyframes dotPulse{0%,100%{box-shadow:0 0 0 4px rgba(95,160,0,.2);}50%{box-shadow:0 0 0 8px rgba(95,160,0,.08);}}
   @keyframes checkPop{0%{transform:scale(0) rotate(-15deg);opacity:0;}55%{transform:scale(1.15) rotate(4deg);opacity:1;}100%{transform:scale(1) rotate(0);opacity:1;}}
   @keyframes checkDraw{to{stroke-dashoffset:0;}}
   @keyframes appIn{from{opacity:0;}to{opacity:1;}}
@@ -206,12 +206,12 @@
     box-shadow:calc(var(--lx,0) * 8px) calc(20px + var(--ly,0) * 8px) 60px rgba(0,0,0,.35);
     animation:authIn .5s cubic-bezier(.22,.9,.28,1);}
   .auth-box.shake{animation:authShake .5s;}
-  .auth-box .dot{width:12px;height:12px;border-radius:50%;background:var(--till);margin:0 auto 10px auto;box-shadow:0 0 0 4px rgba(115,129,46,.2);animation:dotPulse 2.2s ease-in-out infinite;}
+  .auth-box .dot{width:12px;height:12px;border-radius:50%;background:var(--till);margin:0 auto 10px auto;box-shadow:0 0 0 4px rgba(95,160,0,.2);animation:dotPulse 2.2s ease-in-out infinite;}
   .auth-box h2{margin:0 0 2px 0;font-size:18px;}
   .auth-box .ar{font-size:13px;color:var(--text-dim);margin-bottom:4px;}
   .auth-box .sub{font-size:12px;color:var(--text-dim);margin-bottom:18px;}
   .auth-box input{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:9px;font-size:15px;margin-bottom:10px;text-align:center;letter-spacing:.1em;transition:border-color .15s, box-shadow .15s;}
-  .auth-box input:focus{outline:none;border-color:var(--till);box-shadow:0 0 0 4px rgba(115,129,46,.15);}
+  .auth-box input:focus{outline:none;border-color:var(--till);box-shadow:0 0 0 4px rgba(95,160,0,.15);}
   .auth-box .btn.primary{width:100%;padding:12px;font-size:14px;transition:transform .12s, box-shadow .12s;position:relative;overflow:hidden;}
   .auth-box .btn.primary:active{transform:scale(.97);}
   .auth-err{color:var(--red);font-size:12px;font-weight:600;min-height:16px;margin-bottom:6px;}
@@ -227,11 +227,11 @@
   .pin-cell{width:34px;height:42px;border-radius:9px;border:1.5px solid var(--line);background:#fafbfa;
     display:flex;align-items:center;justify-content:center;transition:border-color .12s, transform .12s;
     box-shadow:calc(var(--lx,0) * -5px) calc(var(--ly,0) * -5px) 10px rgba(27,35,32,.14);}
-  .pin-cell.active{border-color:var(--till);box-shadow:calc(var(--lx,0) * -5px) calc(var(--ly,0) * -5px) 10px rgba(115,129,46,.3), 0 0 0 3px rgba(115,129,46,.14);}
+  .pin-cell.active{border-color:var(--till);box-shadow:calc(var(--lx,0) * -5px) calc(var(--ly,0) * -5px) 10px rgba(95,160,0,.3), 0 0 0 3px rgba(95,160,0,.14);}
   .pin-cell.filled::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--till);animation:cellPop .18s cubic-bezier(.34,1.56,.64,1);}
   @keyframes cellPop{from{transform:scale(0);}to{transform:scale(1);}}
   @keyframes verifySweep{from{background-position:220% 0;}to{background-position:-40% 0;}}
-  .btn.primary.verifying{background-image:linear-gradient(100deg, var(--till) 35%, #B9C27A 50%, var(--till) 65%);background-size:280% 100%;animation:verifySweep .7s linear infinite;pointer-events:none;}
+  .btn.primary.verifying{background-image:linear-gradient(100deg, var(--till) 35%, #9FE000 50%, var(--till) 65%);background-size:280% 100%;animation:verifySweep .7s linear infinite;pointer-events:none;}
   #appRoot.revealing{animation:appIn .45s ease;}
   .lock-link{background:none;border:none;color:#9FB0A6;font-size:11px;text-decoration:underline;cursor:pointer;padding:0;}
 </style>
@@ -1195,7 +1195,7 @@ function exportInventoryPDF(){
     head: [['Item','Barcode','Category','Price','Stock']],
     body: sortedInventory().map(p=>[p.name, p.barcode, p.category||'—', money(p.price), String(p.stock)]),
     styles:{fontSize:8},
-    headStyles:{fillColor:[115,129,46]}
+    headStyles:{fillColor:[95,160,0]}
   });
   doc.save('alhor-inventory-'+new Date().toISOString().slice(0,10)+'.pdf');
 }
@@ -1624,7 +1624,7 @@ function exportInvoicesPDF(){
     head: [['Invoice No.','Date','Items','Total','Payment','Status']],
     body: list.map(s=>[s.invoiceNo||'—', new Date(s.time).toLocaleString(), String(s.items.reduce((a,i)=>a+i.qty,0)), money(s.total), s.payment.toUpperCase(), statusText(s)]),
     styles:{fontSize:8},
-    headStyles:{fillColor:[115,129,46]}
+    headStyles:{fillColor:[95,160,0]}
   });
   doc.save('alhor-invoices-'+new Date().toISOString().slice(0,10)+'.pdf');
 }
@@ -2094,8 +2094,8 @@ function unlockApp(){
   const showCheckmark = ()=>{
     box.innerHTML = `
       <svg class="auth-check" viewBox="0 0 64 64" fill="none">
-        <circle cx="32" cy="32" r="27" stroke="#73812E" stroke-width="4"/>
-        <path d="M20 33 L28 41 L44 24" stroke="#73812E" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="32" cy="32" r="27" stroke="#5FA000" stroke-width="4"/>
+        <path d="M20 33 L28 41 L44 24" stroke="#5FA000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <h2>Welcome back</h2>
       <div class="sub">Unlocking the till…</div>`;
