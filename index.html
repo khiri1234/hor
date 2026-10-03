@@ -194,8 +194,12 @@
 
   .toast{position:fixed;bottom:20px;right:20px;background:var(--ink);color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:60;}
 
-  /* Auth gate */
-  #authGate{position:fixed;inset:0;background:var(--panel);display:flex;align-items:center;justify-content:center;z-index:100;transition:opacity .45s ease, transform .45s ease;}
+  /* Auth gate — dark glass "OTP verification" style */
+  #authGate{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:100;transition:opacity .45s ease, transform .45s ease;
+    background:
+      radial-gradient(1200px 800px at 15% 10%, rgba(95,160,0,.14), transparent 60%),
+      radial-gradient(1000px 700px at 85% 90%, rgba(255,255,255,.05), transparent 55%),
+      #0B0D0C;}
   #authGate.fading{opacity:0;transform:scale(1.04);pointer-events:none;}
   @keyframes authIn{from{opacity:0;transform:translateY(14px) scale(.94);}to{opacity:1;transform:translateY(0) scale(1);}}
   @keyframes authShake{10%,90%{transform:translateX(-2px);}20%,80%{transform:translateX(5px);}30%,50%,70%{transform:translateX(-9px);}40%,60%{transform:translateX(9px);}}
@@ -203,34 +207,43 @@
   @keyframes checkPop{0%{transform:scale(0) rotate(-15deg);opacity:0;}55%{transform:scale(1.15) rotate(4deg);opacity:1;}100%{transform:scale(1) rotate(0);opacity:1;}}
   @keyframes checkDraw{to{stroke-dashoffset:0;}}
   @keyframes appIn{from{opacity:0;}to{opacity:1;}}
-  .auth-box{background:#fff;border-radius:16px;padding:32px;width:340px;max-width:90vw;text-align:center;
-    box-shadow:calc(var(--lx,0) * 8px) calc(20px + var(--ly,0) * 8px) 60px rgba(0,0,0,.35);
+  .auth-box{position:relative;color:#fff;border-radius:26px;padding:38px 32px 32px 32px;width:360px;max-width:90vw;text-align:center;
+    background:linear-gradient(165deg, rgba(255,255,255,.12), rgba(255,255,255,.03));
+    backdrop-filter:blur(22px) saturate(160%);
+    -webkit-backdrop-filter:blur(22px) saturate(160%);
+    border:1px solid rgba(255,255,255,.14);
+    box-shadow:calc(var(--lx,0) * 8px) calc(20px + var(--ly,0) * 8px) 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.2);
     animation:authIn .5s cubic-bezier(.22,.9,.28,1);}
+  .auth-box::before{content:"";position:absolute;top:14px;left:50%;transform:translateX(-50%);
+    width:40px;height:4px;border-radius:2px;background:rgba(255,255,255,.22);}
   .auth-box.shake{animation:authShake .5s;}
   .auth-box .dot{width:12px;height:12px;border-radius:50%;background:var(--till);margin:0 auto 10px auto;box-shadow:0 0 0 4px rgba(95,160,0,.2);animation:dotPulse 2.2s ease-in-out infinite;}
-  .auth-box h2{margin:0 0 2px 0;font-size:18px;}
-  .auth-box .ar{font-size:13px;color:var(--text-dim);margin-bottom:4px;}
-  .auth-box .sub{font-size:12px;color:var(--text-dim);margin-bottom:18px;}
-  .auth-box input{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:9px;font-size:15px;margin-bottom:10px;text-align:center;letter-spacing:.1em;transition:border-color .15s, box-shadow .15s;}
-  .auth-box input:focus{outline:none;border-color:var(--till);box-shadow:0 0 0 4px rgba(95,160,0,.15);}
+  .auth-box h2{margin:0 0 2px 0;font-size:19px;color:#fff;}
+  .auth-box .ar{font-size:13px;color:rgba(255,255,255,.55);margin-bottom:4px;}
+  .auth-box .sub{font-size:12px;color:rgba(255,255,255,.55);margin-bottom:18px;}
+  .auth-box input{width:100%;padding:12px 14px;border:1.5px solid rgba(255,255,255,.18);border-radius:9px;font-size:15px;margin-bottom:10px;text-align:center;letter-spacing:.1em;transition:border-color .15s, box-shadow .15s;background:rgba(255,255,255,.06);color:#fff;}
+  .auth-box input::placeholder{color:rgba(255,255,255,.4);}
+  .auth-box input:focus{outline:none;border-color:var(--till);box-shadow:0 0 0 4px rgba(95,160,0,.2);}
   .auth-box .btn.primary{width:100%;padding:12px;font-size:14px;transition:transform .12s, box-shadow .12s;position:relative;overflow:hidden;}
   .auth-box .btn.primary:active{transform:scale(.97);}
-  .auth-err{color:var(--red);font-size:12px;font-weight:600;min-height:16px;margin-bottom:6px;}
+  .auth-err{color:#FF8A75;font-size:12px;font-weight:600;min-height:16px;margin-bottom:6px;}
   .auth-check{width:60px;height:60px;margin:0 auto 14px auto;animation:checkPop .5s cubic-bezier(.34,1.56,.64,1);}
   .auth-check circle{stroke-dasharray:170;stroke-dashoffset:170;animation:checkDraw .55s .05s ease forwards;}
   .auth-check path{stroke-dasharray:38;stroke-dashoffset:38;animation:checkDraw .3s .55s ease forwards;}
 
   /* Login PIN cells: one shared "lamp" (the pointer) lights every cell's
      edge in sync, via --lx/--ly custom properties set on #authGate. */
-  .pin-wrap{position:relative;height:50px;margin-bottom:14px;}
+  .pin-wrap{position:relative;height:58px;margin-bottom:14px;}
   .pin-wrap input{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:none;padding:0;margin:0;cursor:text;z-index:2;}
-  .pin-row{display:flex;gap:7px;justify-content:center;pointer-events:none;flex-wrap:wrap;}
-  .pin-cell{width:34px;height:42px;border-radius:9px;border:1.5px solid var(--line);background:#fafbfa;
+  .pin-row{display:flex;gap:9px;justify-content:center;pointer-events:none;flex-wrap:wrap;}
+  .pin-cell{position:relative;width:42px;height:50px;border-radius:13px;border:1.5px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);
     display:flex;align-items:center;justify-content:center;transition:border-color .12s, transform .12s;
-    box-shadow:calc(var(--lx,0) * -5px) calc(var(--ly,0) * -5px) 10px rgba(27,35,32,.14);}
-  .pin-cell.active{border-color:var(--till);box-shadow:calc(var(--lx,0) * -5px) calc(var(--ly,0) * -5px) 10px rgba(95,160,0,.3), 0 0 0 3px rgba(95,160,0,.14);}
-  .pin-cell.filled::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--till);animation:cellPop .18s cubic-bezier(.34,1.56,.64,1);}
+    box-shadow:calc(var(--lx,0) * -5px) calc(var(--ly,0) * -5px) 10px rgba(0,0,0,.25);}
+  .pin-cell.active{border-color:var(--till);box-shadow:calc(var(--lx,0) * -5px) calc(var(--ly,0) * -5px) 10px rgba(95,160,0,.35), 0 0 0 3px rgba(95,160,0,.18);}
+  .pin-cell.active::after{content:"";width:2px;height:20px;background:var(--till);animation:cursorBlink 1s step-end infinite;}
+  .pin-cell.filled::after{content:"";width:9px;height:9px;border-radius:50%;background:var(--till);animation:cellPop .18s cubic-bezier(.34,1.56,.64,1);}
   @keyframes cellPop{from{transform:scale(0);}to{transform:scale(1);}}
+  @keyframes cursorBlink{0%,45%{opacity:1;}50%,100%{opacity:0;}}
   @keyframes verifySweep{from{background-position:220% 0;}to{background-position:-40% 0;}}
   .btn.primary.verifying{background-image:linear-gradient(100deg, var(--till) 35%, #9FE000 50%, var(--till) 65%);background-size:280% 100%;animation:verifySweep .7s linear infinite;pointer-events:none;}
   #appRoot.revealing{animation:appIn .45s ease;}
