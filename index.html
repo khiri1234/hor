@@ -185,7 +185,7 @@
       linear-gradient(45deg, #fff 8px, transparent 0) 0 0/16px 16px repeat-x;
   }
 
-  .receipt{font-family:var(--mono);font-size:16px;font-weight:600;width:296px;padding:4px 10px;line-height:1.42;color:#000;}
+  .receipt{font-family:var(--mono);font-size:16px;font-weight:600;width:278px;padding:4px 5px;line-height:1.42;color:#000;}
   .receipt .c{text-align:center;}
   .receipt hr{border:none;border-top:1.5px dashed #000;margin:7px 0;}
   .receipt table{font-size:15px;width:100%;}
@@ -1128,7 +1128,7 @@ function setPrintPageSize(mode){
   if(!tag){ tag = document.createElement('style'); tag.id = 'printPageSize'; document.head.appendChild(tag); }
   tag.textContent = mode==='a4'
     ? '@page{size:A4;margin:14mm;}'
-    : '@page{size:80mm auto;margin:0;}';
+    : '@page{size:3in auto;margin:0;}';
 }
 function printReceipt(sale, isDuplicate){
   const area = document.getElementById('printArea');
