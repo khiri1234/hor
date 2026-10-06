@@ -603,7 +603,7 @@ function subscribeMeta(){
     purchaseCounter = data.purchaseCounter || 1000;
     vatInclusive = !!data.vatInclusive;
     if(data.authHash) currentAuthHash = data.authHash;
-    document.getElementById('shiftStartLbl').textContent = new Date(shift.start).toLocaleString();
+    document.getElementById('shiftStartLbl').textContent = fmtDateTime(shift.start);
     renderProducts(); renderCart(); renderInventory(); renderHeld(); renderReport();
   }, e=>console.error('meta listener error', e));
 }
@@ -642,6 +642,13 @@ let vatInclusive = false;
 const VAT_RATE = 0.05;
 const money = n => 'AED ' + (Math.round(n*100)/100).toFixed(2);
 
+/* All dates/times shown or printed use Abu Dhabi time (UAE Standard
+   Time, UTC+4, no DST) regardless of the device's own timezone. */
+const APP_TZ = 'Asia/Dubai';
+const fmtDateTime = (ts=Date.now()) => new Date(ts).toLocaleString(undefined, {timeZone: APP_TZ});
+const fmtDate = (ts=Date.now()) => new Date(ts).toLocaleDateString(undefined, {timeZone: APP_TZ});
+const fmtTime = (ts=Date.now()) => new Date(ts).toLocaleTimeString(undefined, {timeZone: APP_TZ});
+
 /* ---------- Init / seed ---------- */
 async function init(){
   try{ await syncSeedCatalog(); }
@@ -653,7 +660,7 @@ async function init(){
   bindNav();
   bindScanner();
   setVatDefaultRange();
-  setInterval(()=>{ document.getElementById('clock').textContent = new Date().toLocaleString(); },1000);
+  setInterval(()=>{ document.getElementById('clock').textContent = fmtDateTime(); },1000);
 }
 // Placeholder smoking-shop catalog names to remove — replaced by the real
 // Qasr Al Amalaki product catalog below. Matches by exact name only, so it
@@ -1000,7 +1007,7 @@ function renderHeld(){
     const total = h.items.reduce((s,r)=>s+r.price*r.qty,0);
     const div = document.createElement('div');
     div.className='held-card';
-    div.innerHTML = `<div><b>${h.items.length} item(s)</b> · ${money(total)} subtotal<div class="sub" style="color:var(--text-dim);font-size:12px;">${new Date(h.time).toLocaleString()}</div></div>
+    div.innerHTML = `<div><b>${h.items.length} item(s)</b> · ${money(total)} subtotal<div class="sub" style="color:var(--text-dim);font-size:12px;">${fmtDateTime(h.time)}</div></div>
       <div style="display:flex;gap:8px;">
         <button class="btn primary" onclick="resumeHeld('${h.id}')">Resume</button>
         <button class="btn danger" onclick="deleteHeld('${h.id}')">Delete</button>
@@ -1099,7 +1106,7 @@ function receiptInnerHtml(sale, isDuplicate, qrId){
     <div class="c"><b style="font-size:24px;">AL HOR SMOKING ACCESSORIES</b><br><b style="font-size:20px;" dir="rtl">الحر للوازم التدخين</b></div>
     <div class="c" style="margin-top:4px;"><b>Tax Invoice</b><br><b dir="rtl">فاتورة ضريبية</b></div>
     <div class="c" style="font-size:16px;margin-top:4px;">Address: Abu Dhabi, Rabdan, Al Muthabarah Street<br>Tel: 0581583232<br>Email: Moamadrez@gmail.com</div>
-    <div class="c" style="font-size:16px;margin-top:4px;">TRN 10485580740003<br>${new Date(sale.time).toLocaleString()}</div>
+    <div class="c" style="font-size:16px;margin-top:4px;">TRN 10485580740003<br>${fmtDateTime(sale.time)}</div>
     ${isDuplicate ? '<div class="c" style="font-weight:700;letter-spacing:.08em;margin-top:4px;">*** DUPLICATE COPY ***</div>' : ''}
     <div class="c" style="margin-top:4px;">Invoice No: <b>${sale.invoiceNo||'—'}</b></div>
     <hr>
@@ -1228,7 +1235,7 @@ function exportInventoryPDF(){
   doc.text('Al Hor Smoking Accessories — Inventory', 14, 15);
   doc.setFontSize(9);
   doc.setTextColor(100);
-  doc.text('Generated ' + new Date().toLocaleString() + ' · ' + inventory.length + ' items', 14, 21);
+  doc.text('Generated ' + fmtDateTime() + ' · ' + inventory.length + ' items', 14, 21);
   doc.autoTable({
     startY: 26,
     head: [['Item','Barcode','Category','Price','Stock']],
@@ -1251,7 +1258,7 @@ function exportInventoryExcel(){
 function inventorySummaryText(limit){
   const list = sortedInventory();
   const lines = list.slice(0, limit).map(p=>`${p.name} — ${money(p.price)} (Stock: ${p.stock})`);
-  let text = `Al Hor Smoking Accessories — Inventory (${new Date().toLocaleDateString()})\n${list.length} items\n\n` + lines.join('\n');
+  let text = `Al Hor Smoking Accessories — Inventory (${fmtDate()})\n${list.length} items\n\n` + lines.join('\n');
   if(list.length > limit) text += `\n… and ${list.length-limit} more (see attached export)`;
   return text;
 }
@@ -1271,7 +1278,7 @@ function printInventory(){
   setPrintPageSize('a4');
   area.innerHTML = `<div class="vat-report">
     <h2>Al Hor Smoking Accessories — Inventory</h2>
-    <div class="meta">Generated ${new Date().toLocaleString()} · ${inventory.length} items</div>
+    <div class="meta">Generated ${fmtDateTime()} · ${inventory.length} items</div>
     <table>
       <thead><tr><th>Item</th><th>Barcode</th><th>Category</th><th class="num">Price</th><th class="num">Stock</th></tr></thead>
       <tbody>${rows}</tbody>
@@ -1458,7 +1465,7 @@ function renderPurchases(){
   const list = filteredPurchases();
   tb.innerHTML = list.map(p=>`<tr>
     <td>${p.purchaseNo||'—'}</td>
-    <td class="txt">${new Date(p.time).toLocaleString()}</td>
+    <td class="txt">${fmtDateTime(p.time)}</td>
     <td class="txt"><b>${esc(p.supplier||'—')}</b>${p.supplierTRN?`<div class="bc">TRN ${esc(p.supplierTRN)}</div>`:''}</td>
     <td>${p.items.reduce((s,i)=>s+i.qty,0)}</td>
     <td>${money(p.total)}</td>
@@ -1502,7 +1509,7 @@ function printPurchase(id){
   area.className = '';
   setPrintPageSize('receipt');
   area.innerHTML = `<div class="receipt">
-    <div class="c"><b style="font-size:24px;">AL HOR SMOKING ACCESSORIES</b><br><b style="font-size:20px;" dir="rtl">الحر للوازم التدخين</b><br>${new Date(p.time).toLocaleString()}</div>
+    <div class="c"><b style="font-size:24px;">AL HOR SMOKING ACCESSORIES</b><br><b style="font-size:20px;" dir="rtl">الحر للوازم التدخين</b><br>${fmtDateTime(p.time)}</div>
     <div class="c" style="font-weight:700;letter-spacing:.08em;margin-top:4px;">*** PURCHASE RECORD ***</div>
     <div class="c" style="margin-top:4px;">Purchase No: <b>${p.purchaseNo}</b>${p.reference?'<br>Ref: '+esc(p.reference):''}</div>
     <div class="c">Supplier: ${esc(p.supplier||'—')}${p.supplierTRN?'<br>Supplier TRN: '+esc(p.supplierTRN):''}</div>
@@ -1578,7 +1585,7 @@ function renderReport(){
   const tb = document.getElementById('reportTable');
   tb.innerHTML = all.slice().reverse().map(s=>`<tr>
     <td>${s.invoiceNo||'—'}</td>
-    <td>${new Date(s.time).toLocaleTimeString()}</td>
+    <td>${fmtTime(s.time)}</td>
     <td>${s.items.reduce((a,i)=>a+i.qty,0)}</td>
     <td>${money(s.discount)}</td>
     <td>${money(s.vat)}</td>
@@ -1590,7 +1597,7 @@ function renderReport(){
 
   const zb = document.getElementById('zHistTable');
   zb.innerHTML = zHistory.slice().reverse().map(z=>`<tr>
-    <td class="txt">${new Date(z.closedAt).toLocaleString()}</td>
+    <td class="txt">${fmtDateTime(z.closedAt)}</td>
     <td>${z.count}</td><td>${money(z.total)}</td><td>${money(z.cash)}</td><td>${money(z.card)}</td>
   </tr>`).join('') || `<tr><td colspan="5" class="txt" style="text-align:center;color:var(--text-dim);">No closed shifts yet.</td></tr>`;
 }
@@ -1632,7 +1639,7 @@ function printZReport(zEntry, list, retList, cash, card, totalSales, totalVat, t
   area.innerHTML = `<div class="receipt">
     <div class="c"><b style="font-size:24px;">AL HOR SMOKING ACCESSORIES</b><br><b style="font-size:20px;" dir="rtl">الحر للوازم التدخين</b></div>
     <div class="c" style="font-weight:700;letter-spacing:.08em;margin-top:4px;">*** Z REPORT — SHIFT CLOSE ***</div>
-    <div class="c" style="font-size:16px;margin-top:4px;">Shift started: ${new Date(zEntry.shiftStart).toLocaleString()}<br>Shift closed: ${new Date(zEntry.closedAt).toLocaleString()}</div>
+    <div class="c" style="font-size:16px;margin-top:4px;">Shift started: ${fmtDateTime(zEntry.shiftStart)}<br>Shift closed: ${fmtDateTime(zEntry.closedAt)}</div>
     <hr>
     <table>
       <tr><td>Transactions</td><td style="text-align:right;">${list.length}</td></tr>
@@ -1674,7 +1681,7 @@ function renderInvoices(){
   const tb = document.getElementById('invoicesTable');
   tb.innerHTML = list.map(s=>`<tr>
     <td>${s.invoiceNo||'—'}</td>
-    <td class="txt">${new Date(s.time).toLocaleString()}</td>
+    <td class="txt">${fmtDateTime(s.time)}</td>
     <td>${s.items.reduce((a,i)=>a+i.qty,0)}</td>
     <td>${money(s.total)}</td>
     <td class="txt">${s.payment.toUpperCase()}</td>
@@ -1693,11 +1700,11 @@ function exportInvoicesPDF(){
   doc.text('Al Hor Smoking Accessories — Invoices', 14, 15);
   doc.setFontSize(9);
   doc.setTextColor(100);
-  doc.text('Generated ' + new Date().toLocaleString() + ' · ' + list.length + ' invoices', 14, 21);
+  doc.text('Generated ' + fmtDateTime() + ' · ' + list.length + ' invoices', 14, 21);
   doc.autoTable({
     startY: 26,
     head: [['Invoice No.','Date','Items','Total','Payment','Status']],
-    body: list.map(s=>[s.invoiceNo||'—', new Date(s.time).toLocaleString(), String(s.items.reduce((a,i)=>a+i.qty,0)), money(s.total), s.payment.toUpperCase(), statusText(s)]),
+    body: list.map(s=>[s.invoiceNo||'—', fmtDateTime(s.time), String(s.items.reduce((a,i)=>a+i.qty,0)), money(s.total), s.payment.toUpperCase(), statusText(s)]),
     styles:{fontSize:8},
     headStyles:{fillColor:[95,160,0]}
   });
@@ -1707,7 +1714,7 @@ function exportInvoicesExcel(){
   if(!window.XLSX){ showToast('Excel library failed to load — check your connection'); return; }
   const list = filteredInvoices();
   const rows = list.map(s=>({
-    'Invoice No.': s.invoiceNo||'', Date: new Date(s.time).toLocaleString(), Items: s.items.reduce((a,i)=>a+i.qty,0),
+    'Invoice No.': s.invoiceNo||'', Date: fmtDateTime(s.time), Items: s.items.reduce((a,i)=>a+i.qty,0),
     'Subtotal (AED)': s.subtotal, 'Discount (AED)': s.discount, 'VAT (AED)': s.vat, 'Total (AED)': s.total,
     Payment: s.payment.toUpperCase(), Status: statusText(s)
   }));
@@ -1718,8 +1725,8 @@ function exportInvoicesExcel(){
 }
 function invoicesSummaryText(limit){
   const list = filteredInvoices();
-  const lines = list.slice(0, limit).map(s=>`${s.invoiceNo||'—'} — ${new Date(s.time).toLocaleDateString()} — ${money(s.total)} (${statusText(s)})`);
-  let text = `Al Hor Smoking Accessories — Invoices (${new Date().toLocaleDateString()})\n${list.length} invoices\n\n` + lines.join('\n');
+  const lines = list.slice(0, limit).map(s=>`${s.invoiceNo||'—'} — ${fmtDate(s.time)} — ${money(s.total)} (${statusText(s)})`);
+  let text = `Al Hor Smoking Accessories — Invoices (${fmtDate()})\n${list.length} invoices\n\n` + lines.join('\n');
   if(list.length > limit) text += `\n… and ${list.length-limit} more (see attached export)`;
   return text;
 }
@@ -1735,12 +1742,12 @@ function shareInvoicesWhatsApp(){
 function printInvoicesList(){
   const area = document.getElementById('printArea');
   const list = filteredInvoices();
-  const rows = list.map(s=>`<tr><td class="txt">${s.invoiceNo||'—'}</td><td class="txt">${new Date(s.time).toLocaleString()}</td><td class="num">${s.items.reduce((a,i)=>a+i.qty,0)}</td><td class="num">${money(s.total)}</td><td class="txt">${s.payment.toUpperCase()}</td><td class="txt">${statusText(s)}</td></tr>`).join('');
+  const rows = list.map(s=>`<tr><td class="txt">${s.invoiceNo||'—'}</td><td class="txt">${fmtDateTime(s.time)}</td><td class="num">${s.items.reduce((a,i)=>a+i.qty,0)}</td><td class="num">${money(s.total)}</td><td class="txt">${s.payment.toUpperCase()}</td><td class="txt">${statusText(s)}</td></tr>`).join('');
   area.className = 'a4';
   setPrintPageSize('a4');
   area.innerHTML = `<div class="vat-report">
     <h2>Al Hor Smoking Accessories — Invoices</h2>
-    <div class="meta">Generated ${new Date().toLocaleString()} · ${list.length} invoices</div>
+    <div class="meta">Generated ${fmtDateTime()} · ${list.length} invoices</div>
     <table>
       <thead><tr><th>Invoice No.</th><th>Date</th><th class="num">Items</th><th class="num">Total</th><th>Payment</th><th>Status</th></tr></thead>
       <tbody>${rows}</tbody>
@@ -1938,7 +1945,7 @@ function printReturnReceipt(ret){
   area.className = '';
   setPrintPageSize('receipt');
   area.innerHTML = `<div class="receipt">
-    <div class="c"><b style="font-size:24px;">AL HOR SMOKING ACCESSORIES</b><br><b style="font-size:20px;" dir="rtl">الحر للوازم التدخين</b><br><span style="font-size:16px;">TRN 10485580740003</span><br>${new Date(ret.time).toLocaleString()}</div>
+    <div class="c"><b style="font-size:24px;">AL HOR SMOKING ACCESSORIES</b><br><b style="font-size:20px;" dir="rtl">الحر للوازم التدخين</b><br><span style="font-size:16px;">TRN 10485580740003</span><br>${fmtDateTime(ret.time)}</div>
     <div class="c" style="font-weight:700;letter-spacing:.08em;margin-top:4px;">*** RETURN / CREDIT NOTE ***</div>
     <div class="c" style="margin-top:4px;">Return No: <b>${ret.invoiceNo}</b><br>Ref. Invoice: ${ret.originalInvoiceNo}</div>
     <hr>
@@ -1992,7 +1999,7 @@ function generateVat201(){
 
   const html = `<div class="vat-report" id="vat201Body">
     <h2>VAT Return — Form 201</h2>
-    <div class="meta">Al Hor Smoking Accessories (الحر للوازم التدخين) · TRN 10485580740003 · Tax period: ${fromVal} to ${toVal} · Generated ${new Date().toLocaleString()}</div>
+    <div class="meta">Al Hor Smoking Accessories (الحر للوازم التدخين) · TRN 10485580740003 · Tax period: ${fromVal} to ${toVal} · Generated ${fmtDateTime()}</div>
     <div class="meta" style="margin-top:-10px;">Cancelled invoices are excluded; returns/credit notes in this period (${money(retTaxable)} net, ${money(retVat)} VAT) are already netted out below.</div>
 
     <h3>Box 1 — Standard rated supplies (Emirate-wise)</h3>
