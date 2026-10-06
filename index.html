@@ -452,6 +452,11 @@
           <tbody id="zHistTable"></tbody>
         </table>
       </div>
+      <div class="card" style="margin-top:16px;border-color:var(--red);">
+        <h3 style="margin-top:0;color:var(--red);">Danger Zone</h3>
+        <div class="sub" style="margin-bottom:10px;">Permanently deletes all invoices, returns, purchases and shift (Z) history, and resets invoice/purchase numbering back to the start. This cannot be undone.</div>
+        <button class="btn danger" onclick="resetAllTransactions()">Reset all transaction history</button>
+      </div>
     </section>
   </main>
 </div>
@@ -1631,6 +1636,32 @@ async function runZReport(){
   }
   showToast('Z report saved — shift closed');
   printZReport(zEntry, list, retList, cash, card, totalSales, totalVat, sSum.discount, itemCount);
+}
+
+/* ---------- Danger Zone: wipe all transaction history ---------- */
+async function deleteAllDocs(colRef){
+  const snap = await colRef.get();
+  const docs = snap.docs;
+  for(let i=0; i<docs.length; i+=450){
+    const batch = db.batch();
+    docs.slice(i, i+450).forEach(d=>batch.delete(d.ref));
+    await batch.commit();
+  }
+}
+async function resetAllTransactions(){
+  const typed = prompt('This permanently deletes ALL invoices, returns, purchases, and shift (Z) history, and resets invoice/purchase numbering back to the start. Inventory is not affected. This cannot be undone.\n\nType RESET to confirm:');
+  if(typed !== 'RESET'){ showToast('Reset cancelled'); return; }
+  try{
+    await authReady;
+    await deleteAllDocs(salesCol());
+    await deleteAllDocs(returnsCol());
+    await deleteAllDocs(purchasesCol());
+    await metaRef().set({zHistory: [], invoiceCounter: 0, purchaseCounter: 0, shift: {start: Date.now()}}, {merge:true});
+    showToast('All transaction history cleared — starting fresh');
+  }catch(e){
+    console.error('resetAllTransactions failed', e);
+    showToast('Could not reset — try again');
+  }
 }
 function printZReport(zEntry, list, retList, cash, card, totalSales, totalVat, totalDiscount, itemCount){
   const area = document.getElementById('printArea');
