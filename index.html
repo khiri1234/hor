@@ -1949,8 +1949,8 @@ function generateVat201(){
 
   const emirates = ['Abu Dhabi','Dubai','Sharjah','Ajman','Umm Al Quwain','Ras Al Khaimah','Fujairah'];
   const emirateRows = emirates.map(em=>{
-    const amt = em==='Dubai' ? taxableValue : 0;
-    const vat = em==='Dubai' ? outputVat : 0;
+    const amt = em==='Abu Dhabi' ? taxableValue : 0;
+    const vat = em==='Abu Dhabi' ? outputVat : 0;
     return `<tr><td>${em}</td><td class="num">${amt.toFixed(2)}</td><td class="num">${vat.toFixed(2)}</td></tr>`;
   }).join('');
 
