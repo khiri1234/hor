@@ -1,0 +1,16 @@
+{
+  "name": "Al Hor Smoking Accessories — Point of Sale",
+  "short_name": "Al Hor POS",
+  "description": "Point of sale for Al Hor Smoking Accessories",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#232C28",
+  "theme_color": "#232C28",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
