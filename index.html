@@ -1597,6 +1597,8 @@ async function runZReport(){
   else if(list.length>0 && !confirm('This will close the shift and reset X report totals. Continue?')) return;
   const sSum = sumSales(list), rSum = sumReturns(retList);
   const totalSales = sSum.total - rSum.total;
+  const totalVat = sSum.vat - rSum.vat;
+  const itemCount = list.reduce((a,x)=>a+x.items.reduce((b,i)=>b+i.qty,0),0);
   const cash = list.filter(x=>x.payment==='cash').reduce((s,x)=>s+x.total,0);
   const card = list.filter(x=>x.payment==='card').reduce((s,x)=>s+x.total,0);
   const zEntry = {closedAt:Date.now(), count:list.length, total:totalSales, cash, card, shiftStart:shift.start};
@@ -1617,6 +1619,36 @@ async function runZReport(){
     return;
   }
   showToast('Z report saved — shift closed');
+  printZReport(zEntry, list, retList, cash, card, totalSales, totalVat, sSum.discount, itemCount);
+}
+function printZReport(zEntry, list, retList, cash, card, totalSales, totalVat, totalDiscount, itemCount){
+  const area = document.getElementById('printArea');
+  area.className = '';
+  setPrintPageSize('receipt');
+  area.innerHTML = `<div class="receipt">
+    <div class="c"><b style="font-size:24px;">AL HOR SMOKING ACCESSORIES</b><br><b style="font-size:20px;" dir="rtl">الحر للوازم التدخين</b></div>
+    <div class="c" style="font-weight:700;letter-spacing:.08em;margin-top:4px;">*** Z REPORT — SHIFT CLOSE ***</div>
+    <div class="c" style="font-size:16px;margin-top:4px;">Shift started: ${new Date(zEntry.shiftStart).toLocaleString()}<br>Shift closed: ${new Date(zEntry.closedAt).toLocaleString()}</div>
+    <hr>
+    <table>
+      <tr><td>Transactions</td><td style="text-align:right;">${list.length}</td></tr>
+      <tr><td>Items sold</td><td style="text-align:right;">${itemCount}</td></tr>
+      <tr><td>Returns</td><td style="text-align:right;">${retList.length}</td></tr>
+    </table>
+    <hr>
+    <table>
+      <tr><td>Discount</td><td style="text-align:right;">${money(totalDiscount)}</td></tr>
+      <tr><td>Net VAT</td><td style="text-align:right;">${money(totalVat)}</td></tr>
+      <tr><td><b>Net Sales</b></td><td style="text-align:right;"><b>${money(totalSales)}</b></td></tr>
+    </table>
+    <hr>
+    <table>
+      <tr><td>Cash</td><td style="text-align:right;">${money(cash)}</td></tr>
+      <tr><td>Card</td><td style="text-align:right;">${money(card)}</td></tr>
+    </table>
+    <hr><div class="c">End of Z Report</div>
+  </div>`;
+  setTimeout(()=>window.print(), 80);
 }
 
 /* ---------- Invoices (all-time, searchable, reprint / edit / cancel / return) ---------- */
