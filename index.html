@@ -752,6 +752,7 @@ function bindScanner(){
   input.addEventListener('keydown', e=>{
     if(e.key==='Enter'){ e.preventDefault(); handleScanSubmit(); }
   });
+  input.addEventListener('input', renderProducts);
   document.addEventListener('click', e=>{
     if(document.getElementById('view-sale').style.display!=='none' &&
        !e.target.closest('.modal') &&
@@ -767,6 +768,7 @@ function handleScanSubmit(){
   const q = input.value.trim();
   if(!q) return;
   input.value='';
+  renderProducts();
   let item = inventory.find(p=>p.barcode===q);
   if(!item) item = inventory.find(p=>p.name.toLowerCase()===q.toLowerCase());
   if(!item) item = inventory.find(p=>p.name.toLowerCase().includes(q.toLowerCase()));
@@ -816,7 +818,9 @@ async function persistCustomOrder(orderedIds){
 function renderProducts(){
   const grid = document.getElementById('prodGrid');
   grid.innerHTML='';
-  sortItemsByField(inventory, saleSortField, saleSortDir).forEach(p=>{
+  const q = (document.getElementById('scanInput')?.value||'').trim().toLowerCase();
+  const matches = q ? inventory.filter(p=>p.name.toLowerCase().includes(q) || p.barcode.includes(q)) : inventory;
+  sortItemsByField(matches, saleSortField, saleSortDir).forEach(p=>{
     const div = document.createElement('button');
     div.className='prod-card';
     div.dataset.id = p.id;
