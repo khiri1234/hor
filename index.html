@@ -1291,7 +1291,7 @@ function printBarcodeLabel(id){
   area.className = '';
   setPrintPageSize('receipt');
   area.innerHTML = `<div class="receipt c">
-    <div style="font-size:12px;color:#000;">AL HOR SMOKING ACCESSORIES · <span dir="rtl">الحر للوازم التدخين</span></div>
+    <div style="font-size:12px;color:#000;">AL HOR SMOKING ACCESSORIES</div>
     <div style="font-weight:700;margin-bottom:4px;">${esc(p.name)}</div>
     <svg id="lblSvg"></svg>
     <div>${money(p.price)}</div>
@@ -1318,7 +1318,7 @@ function printSelectedLabels(){
   area.className = '';
   setPrintPageSize('receipt');
   area.innerHTML = items.map((p,i)=>`<div class="receipt c" style="${i>0?'margin-top:10px;border-top:1.5px dashed #000;padding-top:10px;':''}">
-    <div style="font-size:12px;color:#000;">AL HOR SMOKING ACCESSORIES · <span dir="rtl">الحر للوازم التدخين</span></div>
+    <div style="font-size:12px;color:#000;">AL HOR SMOKING ACCESSORIES</div>
     <div style="font-weight:700;margin-bottom:4px;">${esc(p.name)}</div>
     <svg id="lblSvg_${i}"></svg>
     <div>${money(p.price)}</div>
