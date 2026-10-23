@@ -361,7 +361,7 @@
         <button class="btn" onclick="shareInventoryEmail()">✉️ Email</button>
         <button class="btn" onclick="shareInventoryWhatsApp()">💬 WhatsApp</button>
         <button class="btn" onclick="printInventory()">🖨️ Print</button>
-        <button class="btn" onclick="printSelectedLabels()">🏷️ Print Labels</button>
+        <button class="btn" onclick="openLabelQtyModal('bulk')">🏷️ Print Labels</button>
       </div>
       <div class="card">
         <table>
@@ -1178,7 +1178,7 @@ function renderInventory(){
       <td class="${p.stock<=5?'':''}" style="${p.stock<=5?'color:var(--red);font-weight:700;':''}">${p.stock}</td>
       <td class="txt" style="display:flex;gap:6px;flex-wrap:wrap;">
         <button class="btn" onclick="openProductModal('${p.id}')">Edit</button>
-        <button class="btn" onclick="printBarcodeLabel('${p.id}')">Label</button>
+        <button class="btn" onclick="openLabelQtyModal('single','${p.id}')">Label</button>
         <button class="btn danger" onclick="deleteProduct('${p.id}')">Delete</button>
       </td>`;
     tb.appendChild(tr);
@@ -1311,22 +1311,6 @@ async function deleteProduct(id){
     showToast('Could not delete item — try again');
   }
 }
-function printBarcodeLabel(id){
-  const p = inventory.find(x=>x.id===id);
-  const area = document.getElementById('printArea');
-  area.className = '';
-  setPrintPageSize('label');
-  area.innerHTML = `<div class="barcode-label">
-    <div class="biz">AL HOR SMOKING ACCESSORIES</div>
-    <div class="pname">${esc(p.name)}</div>
-    <svg id="lblSvg"></svg>
-    <div class="price">${money(p.price)}</div>
-  </div>`;
-  try{
-    fitBarcodeToLabel(document.getElementById('lblSvg'), p.barcode, 33);
-  }catch(e){}
-  setTimeout(()=>window.print(),100);
-}
 let selectedInvIds = new Set();
 function toggleInvSelect(id, checked){
   if(checked) selectedInvIds.add(id); else selectedInvIds.delete(id);
@@ -1337,9 +1321,31 @@ function toggleSelectAllInv(checked){
   selectedInvIds = checked ? new Set(inventory.map(p=>p.id)) : new Set();
   renderInventory();
 }
-function printSelectedLabels(){
-  if(selectedInvIds.size===0){ showToast('Select at least one product to print labels'); return; }
-  const items = inventory.filter(p=>selectedInvIds.has(p.id));
+function openLabelQtyModal(mode, id){
+  if(mode==='bulk' && selectedInvIds.size===0){ showToast('Select at least one product to print labels'); return; }
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = `<div class="modal-bg"><div class="modal" style="width:340px;">
+    <h3>Print Labels</h3>
+    <div class="form-grid" style="grid-template-columns:1fr;">
+      <div><label>Copies per product</label><input id="f_labelQty" type="text" inputmode="numeric" value="1" autofocus></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button class="btn" style="flex:1;" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" style="flex:1;" onclick="confirmPrintLabels('${mode}', '${id||''}')">Print</button>
+    </div>
+  </div></div>`;
+  document.getElementById('f_labelQty').select();
+}
+function confirmPrintLabels(mode, id){
+  const qty = Math.max(1, Math.min(999, parseInt(document.getElementById('f_labelQty').value)||1));
+  const base = mode==='single' ? [inventory.find(x=>x.id===id)] : inventory.filter(p=>selectedInvIds.has(p.id));
+  closeModal();
+  const items = [];
+  base.forEach(p=>{ for(let i=0;i<qty;i++) items.push(p); });
+  printLabelItems(items);
+}
+function printLabelItems(items){
+  if(items.length===0) return;
   const area = document.getElementById('printArea');
   area.className = '';
   setPrintPageSize('label');
