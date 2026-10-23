@@ -192,6 +192,12 @@
   .receipt table td:first-child{white-space:nowrap;}
   .receipt td{border:none;padding:3px 0;font-family:var(--mono);}
 
+  /* Physical barcode label: 38mm x 25mm thermal label stock */
+  .barcode-label{width:38mm;height:25mm;box-sizing:border-box;padding:1mm 1.5mm;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;font-family:var(--mono);color:#000;}
+  .barcode-label .biz{font-size:6px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;}
+  .barcode-label .pname{font-size:7px;font-weight:700;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;margin:0.5mm 0;}
+  .barcode-label .price{font-size:8px;font-weight:700;text-align:center;margin-top:0.5mm;}
+
   .vat-report{font-family:var(--sans);width:100%;padding:20px;color:#000;}
   .vat-report h2{margin:0 0 2px 0;font-size:18px;}
   .vat-report .meta{font-size:12px;color:#444;margin-bottom:16px;}
@@ -1076,7 +1082,20 @@ function setPrintPageSize(mode){
   if(!tag){ tag = document.createElement('style'); tag.id = 'printPageSize'; document.head.appendChild(tag); }
   tag.textContent = mode==='a4'
     ? '@page{size:A4;margin:14mm;}'
+    : mode==='label'
+    ? '@page{size:38mm 25mm;margin:0;}'
     : '@page{size:3in auto;margin:0;}';
+}
+/* Renders a CODE128 barcode into svgEl, auto-shrinking the bar width so
+   the whole symbol (any barcode length) fits inside maxWidthMm — a fixed
+   module width would overflow the small 38mm label on longer codes. */
+function fitBarcodeToLabel(svgEl, text, maxWidthMm){
+  const maxWidthPx = maxWidthMm * 3.7795275591;
+  const opts = {format:"CODE128", height:34, fontSize:7, margin:0, displayValue:true};
+  JsBarcode(svgEl, text, {...opts, width:1});
+  const naturalWidth = svgEl.getBBox().width || parseFloat(svgEl.getAttribute('width')) || 1;
+  const moduleWidth = Math.min(2.2, Math.max(0.55, maxWidthPx / naturalWidth));
+  JsBarcode(svgEl, text, {...opts, width:moduleWidth});
 }
 function printReceipt(sale, isDuplicate){
   const area = document.getElementById('printArea');
@@ -1289,15 +1308,15 @@ function printBarcodeLabel(id){
   const p = inventory.find(x=>x.id===id);
   const area = document.getElementById('printArea');
   area.className = '';
-  setPrintPageSize('receipt');
-  area.innerHTML = `<div class="receipt"><div class="c">
-    <div style="font-size:12px;color:#000;">AL HOR SMOKING ACCESSORIES</div>
-    <div style="font-weight:700;margin-bottom:4px;">${esc(p.name)}</div>
+  setPrintPageSize('label');
+  area.innerHTML = `<div class="barcode-label">
+    <div class="biz">AL HOR SMOKING ACCESSORIES</div>
+    <div class="pname">${esc(p.name)}</div>
     <svg id="lblSvg"></svg>
-    <div>${money(p.price)}</div>
-  </div></div>`;
+    <div class="price">${money(p.price)}</div>
+  </div>`;
   try{
-    JsBarcode("#lblSvg", p.barcode, {format:"CODE128", width:2, height:50, fontSize:12, margin:4});
+    fitBarcodeToLabel(document.getElementById('lblSvg'), p.barcode, 33);
   }catch(e){}
   setTimeout(()=>window.print(),100);
 }
@@ -1316,16 +1335,16 @@ function printSelectedLabels(){
   const items = inventory.filter(p=>selectedInvIds.has(p.id));
   const area = document.getElementById('printArea');
   area.className = '';
-  setPrintPageSize('receipt');
-  area.innerHTML = items.map((p,i)=>`<div class="receipt" style="${i>0?'margin-top:10px;border-top:1.5px dashed #000;padding-top:10px;':''}"><div class="c">
-    <div style="font-size:12px;color:#000;">AL HOR SMOKING ACCESSORIES</div>
-    <div style="font-weight:700;margin-bottom:4px;">${esc(p.name)}</div>
+  setPrintPageSize('label');
+  area.innerHTML = items.map((p,i)=>`<div class="barcode-label" style="${i<items.length-1?'page-break-after:always;':''}">
+    <div class="biz">AL HOR SMOKING ACCESSORIES</div>
+    <div class="pname">${esc(p.name)}</div>
     <svg id="lblSvg_${i}"></svg>
-    <div>${money(p.price)}</div>
-  </div></div>`).join('');
+    <div class="price">${money(p.price)}</div>
+  </div>`).join('');
   items.forEach((p,i)=>{
     try{
-      JsBarcode(`#lblSvg_${i}`, p.barcode, {format:"CODE128", width:2, height:50, fontSize:12, margin:4});
+      fitBarcodeToLabel(document.getElementById(`lblSvg_${i}`), p.barcode, 33);
     }catch(e){}
   });
   setTimeout(()=>window.print(),100);
