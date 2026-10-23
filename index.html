@@ -350,10 +350,12 @@
         <button class="btn" onclick="shareInventoryEmail()">✉️ Email</button>
         <button class="btn" onclick="shareInventoryWhatsApp()">💬 WhatsApp</button>
         <button class="btn" onclick="printInventory()">🖨️ Print</button>
+        <button class="btn" onclick="printSelectedLabels()">🏷️ Print Labels</button>
       </div>
       <div class="card">
         <table>
           <thead><tr>
+            <th style="width:28px;"><input type="checkbox" id="invSelectAll" onchange="toggleSelectAllInv(this.checked)"></th>
             <th class="sortable" onclick="sortInventoryBy('name')">Item<span class="sort-ind" id="sortInd_name"></span></th>
             <th class="sortable" onclick="sortInventoryBy('barcode')">Barcode<span class="sort-ind" id="sortInd_barcode"></span></th>
             <th class="sortable" onclick="sortInventoryBy('category')">Category<span class="sort-ind" id="sortInd_category"></span></th>
@@ -1142,7 +1144,8 @@ function renderInventory(){
   tb.innerHTML='';
   sortedInventory().forEach(p=>{
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td class="txt"><b>${esc(p.name)}</b></td>
+    tr.innerHTML = `<td><input type="checkbox" class="invRowCheck" data-id="${p.id}" ${selectedInvIds.has(p.id)?'checked':''} onchange="toggleInvSelect('${p.id}', this.checked)"></td>
+      <td class="txt"><b>${esc(p.name)}</b></td>
       <td>${p.barcode}</td>
       <td class="txt">${esc(p.category||'—')}</td>
       <td>${money(p.price)}</td>
@@ -1158,6 +1161,8 @@ function renderInventory(){
     const el = document.getElementById('sortInd_'+f);
     if(el) el.textContent = invSortField===f ? (invSortDir===1?'▲':'▼') : '';
   });
+  const selectAll = document.getElementById('invSelectAll');
+  if(selectAll) selectAll.checked = inventory.length>0 && selectedInvIds.size===inventory.length;
 }
 
 /* ---------- Inventory sharing / export ---------- */
@@ -1294,6 +1299,35 @@ function printBarcodeLabel(id){
   try{
     JsBarcode("#lblSvg", p.barcode, {format:"CODE128", width:2, height:50, fontSize:12, margin:4});
   }catch(e){}
+  setTimeout(()=>window.print(),100);
+}
+let selectedInvIds = new Set();
+function toggleInvSelect(id, checked){
+  if(checked) selectedInvIds.add(id); else selectedInvIds.delete(id);
+  const selectAll = document.getElementById('invSelectAll');
+  if(selectAll) selectAll.checked = inventory.length>0 && selectedInvIds.size===inventory.length;
+}
+function toggleSelectAllInv(checked){
+  selectedInvIds = checked ? new Set(inventory.map(p=>p.id)) : new Set();
+  renderInventory();
+}
+function printSelectedLabels(){
+  if(selectedInvIds.size===0){ showToast('Select at least one product to print labels'); return; }
+  const items = inventory.filter(p=>selectedInvIds.has(p.id));
+  const area = document.getElementById('printArea');
+  area.className = '';
+  setPrintPageSize('receipt');
+  area.innerHTML = items.map((p,i)=>`<div class="receipt c" style="${i>0?'margin-top:10px;border-top:1.5px dashed #000;padding-top:10px;':''}">
+    <div style="font-size:12px;color:#000;">AL HOR SMOKING ACCESSORIES · <span dir="rtl">الحر للوازم التدخين</span></div>
+    <div style="font-weight:700;margin-bottom:4px;">${esc(p.name)}</div>
+    <svg id="lblSvg_${i}"></svg>
+    <div>${money(p.price)}</div>
+  </div>`).join('');
+  items.forEach((p,i)=>{
+    try{
+      JsBarcode(`#lblSvg_${i}`, p.barcode, {format:"CODE128", width:2, height:50, fontSize:12, margin:4});
+    }catch(e){}
+  });
   setTimeout(()=>window.print(),100);
 }
 
