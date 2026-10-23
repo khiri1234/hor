@@ -1054,7 +1054,7 @@ function receiptInnerHtml(sale, isDuplicate, qrId){
     <div class="c"><b style="font-size:24px;">AL HOR SMOKING ACCESSORIES</b><br><b style="font-size:20px;" dir="rtl">الحر للوازم التدخين</b></div>
     <div class="c" style="margin-top:4px;"><b>Tax Invoice</b><br><b dir="rtl">فاتورة ضريبية</b></div>
     <div class="c" style="font-size:16px;margin-top:4px;">Address: Abu Dhabi, Rabdan, Al Muthabarah Street<br>Tel: 0581583232<br>Email: Moamadrez@gmail.com</div>
-    <div class="c" style="font-size:16px;margin-top:4px;">TRN 10485580740003<br>${fmtDateTime(sale.time)}</div>
+    <div class="c" style="font-size:16px;margin-top:4px;">TRN 104855807400003<br>${fmtDateTime(sale.time)}</div>
     ${isDuplicate ? '<div class="c" style="font-weight:700;letter-spacing:.08em;margin-top:4px;">*** DUPLICATE COPY ***</div>' : ''}
     <div class="c" style="margin-top:4px;">Invoice No: <b>${sale.invoiceNo||'—'}</b></div>
     <hr>
@@ -1986,7 +1986,7 @@ function printReturnReceipt(ret){
   area.className = '';
   setPrintPageSize('receipt');
   area.innerHTML = `<div class="receipt">
-    <div class="c"><b style="font-size:24px;">AL HOR SMOKING ACCESSORIES</b><br><b style="font-size:20px;" dir="rtl">الحر للوازم التدخين</b><br><span style="font-size:16px;">TRN 10485580740003</span><br>${fmtDateTime(ret.time)}</div>
+    <div class="c"><b style="font-size:24px;">AL HOR SMOKING ACCESSORIES</b><br><b style="font-size:20px;" dir="rtl">الحر للوازم التدخين</b><br><span style="font-size:16px;">TRN 104855807400003</span><br>${fmtDateTime(ret.time)}</div>
     <div class="c" style="font-weight:700;letter-spacing:.08em;margin-top:4px;">*** RETURN / CREDIT NOTE ***</div>
     <div class="c" style="margin-top:4px;">Return No: <b>${ret.invoiceNo}</b><br>Ref. Invoice: ${ret.originalInvoiceNo}</div>
     <hr>
@@ -2040,7 +2040,7 @@ function generateVat201(){
 
   const html = `<div class="vat-report" id="vat201Body">
     <h2>VAT Return — Form 201</h2>
-    <div class="meta">Al Hor Smoking Accessories (الحر للوازم التدخين) · TRN 10485580740003 · Tax period: ${fromVal} to ${toVal} · Generated ${fmtDateTime()}</div>
+    <div class="meta">Al Hor Smoking Accessories (الحر للوازم التدخين) · TRN 104855807400003 · Tax period: ${fromVal} to ${toVal} · Generated ${fmtDateTime()}</div>
     <div class="meta" style="margin-top:-10px;">Cancelled invoices are excluded; returns/credit notes in this period (${money(retTaxable)} net, ${money(retVat)} VAT) are already netted out below.</div>
 
     <h3>Box 1 — Standard rated supplies (Emirate-wise)</h3>
