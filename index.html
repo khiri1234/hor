@@ -1290,12 +1290,12 @@ function printBarcodeLabel(id){
   const area = document.getElementById('printArea');
   area.className = '';
   setPrintPageSize('receipt');
-  area.innerHTML = `<div class="receipt c">
+  area.innerHTML = `<div class="receipt"><div class="c">
     <div style="font-size:12px;color:#000;">AL HOR SMOKING ACCESSORIES</div>
     <div style="font-weight:700;margin-bottom:4px;">${esc(p.name)}</div>
     <svg id="lblSvg"></svg>
     <div>${money(p.price)}</div>
-  </div>`;
+  </div></div>`;
   try{
     JsBarcode("#lblSvg", p.barcode, {format:"CODE128", width:2, height:50, fontSize:12, margin:4});
   }catch(e){}
@@ -1317,12 +1317,12 @@ function printSelectedLabels(){
   const area = document.getElementById('printArea');
   area.className = '';
   setPrintPageSize('receipt');
-  area.innerHTML = items.map((p,i)=>`<div class="receipt c" style="${i>0?'margin-top:10px;border-top:1.5px dashed #000;padding-top:10px;':''}">
+  area.innerHTML = items.map((p,i)=>`<div class="receipt" style="${i>0?'margin-top:10px;border-top:1.5px dashed #000;padding-top:10px;':''}"><div class="c">
     <div style="font-size:12px;color:#000;">AL HOR SMOKING ACCESSORIES</div>
     <div style="font-weight:700;margin-bottom:4px;">${esc(p.name)}</div>
     <svg id="lblSvg_${i}"></svg>
     <div>${money(p.price)}</div>
-  </div>`).join('');
+  </div></div>`).join('');
   items.forEach((p,i)=>{
     try{
       JsBarcode(`#lblSvg_${i}`, p.barcode, {format:"CODE128", width:2, height:50, fontSize:12, margin:4});
