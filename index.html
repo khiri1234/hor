@@ -1092,7 +1092,11 @@ function setPrintPageSize(mode){
 }
 /* Renders a CODE128 barcode into svgEl, auto-shrinking the bar width so
    the whole symbol (any barcode length) fits inside maxWidthMm — a fixed
-   module width would overflow the small 38mm label on longer codes. */
+   module width would overflow the small 38mm label on longer codes.
+   The module-width floor is 0.9px (roughly 2 dots on a 203dpi thermal
+   head) rather than a thinner value: bars any thinner risk not fusing
+   reliably on direct-thermal label stock and printing as a faint or
+   missing gap even though they render fine on screen/PDF. */
 function fitBarcodeToLabel(svgEl, text, maxWidthMm){
   const maxWidthPx = maxWidthMm * 3.7795275591;
   const opts = {format:"CODE128", height:34, fontSize:7, margin:0, displayValue:true};
@@ -1100,7 +1104,7 @@ function fitBarcodeToLabel(svgEl, text, maxWidthMm){
   let naturalWidth = parseFloat(svgEl.getAttribute('width'));
   if(!naturalWidth){ try{ naturalWidth = svgEl.getBBox().width; }catch(e){} }
   naturalWidth = naturalWidth || 1;
-  const moduleWidth = Math.min(2.2, Math.max(0.55, maxWidthPx / naturalWidth));
+  const moduleWidth = Math.min(2.5, Math.max(0.9, maxWidthPx / naturalWidth));
   JsBarcode(svgEl, text, {...opts, width:moduleWidth});
 }
 function printReceipt(sale, isDuplicate){
